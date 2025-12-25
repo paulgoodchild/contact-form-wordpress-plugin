@@ -171,6 +171,12 @@ div.cntctfrm_info {
 	margin-bottom: 8px;
 	padding-top: 3px;
 }
+/* E-sign */
+#cntctfrm_contact_esign {
+	border: 1px solid #f0f0f1;
+	height: 50px;
+	background-color: #f0f0f1;
+}
 @media screen and (max-width: 1350px) {
 	#cntctfrm_additional_settings_tab .form-table td {
 		display: inline-block;

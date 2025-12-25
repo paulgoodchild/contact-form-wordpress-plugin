@@ -299,8 +299,10 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 
 				$this->options['dropdown_value_1']  = isset( $_POST['cntctfrm_dropdown_value_1'] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_dropdown_value_1'] ) ) : '';
 				$this->options['dropdown_value_2']  = isset( $_POST['cntctfrm_dropdown_value_2'] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_dropdown_value_2'] ) ) : '';
-				$this->options['display_dropdown']   = isset( $_POST['cntctfrm_display_dropdown'] ) ? 1 : 0;
+				$this->options['display_dropdown']  = isset( $_POST['cntctfrm_display_dropdown'] ) ? 1 : 0;
 				$this->options['required_dropdown'] = isset( $_POST['cntctfrm_required_dropdown'] ) ? 1 : 0;
+				$this->options['display_esign']     = isset( $_POST['cntctfrm_display_esign'] ) ? 1 : 0;
+				$this->options['required_esign']    = isset( $_POST['cntctfrm_required_esign'] ) ? 1 : 0;
 
 				if ( 1 === $this->options['change_label'] && isset( $_POST['cntctfrm_name_label'] ) ) {
 					foreach ( $_POST['cntctfrm_name_label'] as $key => $val ) {
@@ -315,6 +317,7 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 						$this->options['attachment_label'][ $key ]        = isset( $_POST['cntctfrm_attachment_label'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_attachment_label'][ $key ] ) ) : '';
 						$this->options['attachment_tooltip'][ $key ]      = isset( $_POST['cntctfrm_attachment_tooltip'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_attachment_tooltip'][ $key ] ) ) : '';
 						$this->options['dropdown_label'][ $key ]          = isset( $_POST['cntctfrm_dropdown_label'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_dropdown_label'][ $key ] ) ) : '';
+						$this->options['esign_label'][ $key ]             = isset( $_POST['cntctfrm_esign_label'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_esign_label'][ $key ] ) ) : '';
 						$this->options['send_copy_label'][ $key ]         = isset( $_POST['cntctfrm_send_copy_label'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_send_copy_label'][ $key ] ) ) : '';
 						$this->options['gdpr_label'][ $key ]              = isset( $_POST['cntctfrm_gdpr_label'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_gdpr_label'][ $key ] ) ) : '';
 						$this->options['gdpr_text_button'][ $key ]        = isset( $_POST['cntctfrm_gdpr_text_button'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_gdpr_text_button'][ $key ] ) ) : '';
@@ -333,6 +336,7 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 						$this->options['attachment_size_error'][ $key ]   = isset( $_POST['cntctfrm_attachment_size_error'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_attachment_size_error'][ $key ] ) ) : '';
 						$this->options['captcha_error'][ $key ]           = isset( $_POST['cntctfrm_captcha_error'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_captcha_error'][ $key ] ) ) : '';
 						$this->options['dropdown_error'][ $key ]          = isset( $_POST['cntctfrm_dropdown_error'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_dropdown_error'][ $key ] ) ) : '';
+						$this->options['esign_error'][ $key ]             = isset( $_POST['cntctfrm_esign_error'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_esign_error'][ $key ] ) ) : '';
 						$this->options['form_error'][ $key ]              = isset( $_POST['cntctfrm_form_error'][ $key ] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_form_error'][ $key ] ) ) : '';
 					}
 				} else {
@@ -348,6 +352,7 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 						$this->options['attachment_label']        = $option_defaults['attachment_label'];
 						$this->options['attachment_tooltip']      = $option_defaults['attachment_tooltip'];
 						$this->options['dropdown_label']          = $option_defaults['dropdown_label'];
+						$this->options['esign_label']             = $option_defaults['esign_label'];
 						$this->options['send_copy_label']         = isset( $option_defaults['send_copy_label'] ) ? $option_defaults['send_copy_label'] : array( 'default' => __( 'Send me copy.', 'contact-form-plugin' ) );
 						$this->options['gdpr_label']              = $option_defaults['gdpr_label'];
 						$this->options['gdpr_text_button']        = $option_defaults['gdpr_text_button'];
@@ -366,6 +371,7 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 						$this->options['attachment_size_error']   = $option_defaults['attachment_size_error'];
 						$this->options['captcha_error']           = $option_defaults['captcha_error'];
 						$this->options['dropdown_error']          = $option_defaults['dropdown_error'];
+						$this->options['esign_error']             = $option_defaults['esign_error'];
 						$this->options['form_error']              = $option_defaults['form_error'];
 						foreach ( $this->options['thank_text'] as $key => $val ) {
 							$this->options['thank_text'][ $key ] = sanitize_textarea_field( wp_unslash( $val ) );
@@ -380,6 +386,7 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 						$this->options['attachment_label']['default']        = $option_defaults['attachment_label']['default'];
 						$this->options['attachment_tooltip']['default']      = $option_defaults['attachment_tooltip']['default'];
 						$this->options['dropdown_label']['default']          = isset( $option_defaults['dropdown_label']['default'] ) ? $option_defaults['dropdown_label']['default'] : array( 'default' => __( 'Dropdown', 'contact-form-plugin' ) );
+						$this->options['esign_label']['default']             = isset( $option_defaults['esign_label']['default'] ) ? $option_defaults['esign_label']['default'] : array( 'default' => __( 'E-sign', 'contact-form-plugin' ) );
 						$this->options['send_copy_label']['default']         = $option_defaults['send_copy_label']['default'];
 						$this->options['gdpr_label']['default']              = $option_defaults['gdpr_label']['default'];
 						$this->options['gdpr_text_button']['default']        = $option_defaults['gdpr_text_button']['default'];
@@ -397,6 +404,7 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 						$this->options['attachment_size_error']['default']   = $option_defaults['attachment_size_error']['default'];
 						$this->options['captcha_error']['default']           = $option_defaults['captcha_error']['default'];
 						$this->options['dropdown_error']['default']          = $option_defaults['dropdown_error']['default'];
+						$this->options['esign_error']['default']             = $option_defaults['esign_error']['default'];
 						$this->options['form_error']['default']              = $option_defaults['form_error']['default'];
 
 						foreach ( $_POST['cntctfrm_thank_text'] as $key => $val ) {
@@ -1061,6 +1069,25 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 						<?php } ?>
 						<?php do_action( 'cntctfrm_display_settings_table_emptiness' ); ?>
 					</tr>
+					<tr valign="top" class="cntctfrm-esign">
+						<td>
+							<?php esc_html_e( 'E-sign', 'contact-form-plugin' ); ?>
+						</td>
+						<td>
+							<label class="bws_info"><input type="checkbox" name="cntctfrm_display_esign" value="1" <?php checked( '1', $this->options['display_esign'] ); ?> /></label>
+						</td>
+						<td>
+							<label><input type="checkbox" id="cntctfrm_required_esign" name="cntctfrm_required_esign" value="1" <?php checked( '1', $this->options['required_esign'] ); ?> /></label>
+						</td>
+						<?php if ( ! $this->hide_pro_tabs ) { ?>
+							<td class="bws_pro_version"></td>
+							<td class="bws_pro_version"></td>
+							<td></td>
+						<?php } else { ?>
+							<td></td>
+						<?php } ?>
+						<?php do_action( 'cntctfrm_display_settings_table_emptiness' ); ?>
+					</tr>
 					<?php do_action( 'cntctfrm_get_these_custom_fields', $this->cf_class ); ?>
 				</tbody>
 			</table>
@@ -1404,6 +1431,7 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 								<input type="text" maxlength="250" name="cntctfrm_attachment_label[default]" value="<?php echo esc_html( $this->options['attachment_label']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'Attachment', 'contact-form-plugin' ); ?>:</span><br />
 								<input type="text" maxlength="250" name="cntctfrm_attachment_tooltip[default]" value="<?php echo esc_html( $this->options['attachment_tooltip']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'Tips below the Attachment block', 'contact-form-plugin' ); ?></span><br />
 								<input type="text" maxlength="250" name="cntctfrm_dropdown_label[default]" value="<?php echo esc_html( $this->options['dropdown_label']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'Dropdown', 'contact-form-plugin' ); ?>:</span><br />
+								<input type="text" maxlength="250" name="cntctfrm_esign_label[default]" value="<?php echo esc_html( $this->options['esign_label']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'E-sign', 'contact-form-plugin' ); ?>:</span><br />
 								<input type="text" maxlength="250" name="cntctfrm_send_copy_label[default]" value="<?php echo esc_html( $this->options['send_copy_label']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'Send me a copy', 'contact-form-plugin' ); ?></span><br />
 								<input type="text" maxlength="250" name="cntctfrm_gdpr_label[default]" value="<?php echo esc_html( $this->options['gdpr_label']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'I consent to having this site collect my personal data.', 'contact-form-plugin' ); ?></span><br />
 								<input type="text" maxlength="250" name="cntctfrm_gdpr_text_button[default]" value="<?php echo esc_html( $this->options['gdpr_text_button']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'Learn more', 'contact-form-plugin' ); ?></span><br />
@@ -1421,6 +1449,7 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 								<input type="text" maxlength="250" name="cntctfrm_attachment_size_error[default]" value="<?php echo esc_html( $this->options['attachment_size_error']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'Error message when file size limit for the Attachment field is exceeded', 'contact-form-plugin' ); ?></span><br />
 								<input type="text" maxlength="250" name="cntctfrm_captcha_error[default]" value="<?php echo esc_html( $this->options['captcha_error']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'Error message for the Captcha field', 'contact-form-plugin' ); ?></span><br />
 								<input type="text" maxlength="250" name="cntctfrm_dropdown_error[default]" value="<?php echo esc_html( $this->options['dropdown_error']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'Error message for the Dropdown field', 'contact-form-plugin' ); ?></span><br />
+								<input type="text" maxlength="250" name="cntctfrm_esign_error[default]" value="<?php echo esc_html( $this->options['esign_error']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'Error message for the E-sign field', 'contact-form-plugin' ); ?></span><br />
 								<input type="text" maxlength="250" name="cntctfrm_form_error[default]" value="<?php echo esc_html( $this->options['form_error']['default'] ); ?>" /> <span class="bws_info"><?php esc_html_e( 'Error message for the whole form', 'contact-form-plugin' ); ?></span><br />
 							</div>
 							<?php if ( ! $contact_form_multi_active ) { ?>
@@ -1450,6 +1479,7 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 										<input type="text" maxlength="250" name="cntctfrm_attachment_label[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['attachment_label'][ $val ] ) ? esc_html( $this->options['attachment_label'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'Attachment', 'contact-form-plugin' ); ?>:</span><br />
 										<input type="text" maxlength="250" name="cntctfrm_attachment_tooltip[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['attachment_tooltip'][ $val ] ) ? esc_html( $this->options['attachment_tooltip'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'Tips below the Attachment block', 'contact-form-plugin' ); ?></span><br />
 										<input type="text" maxlength="250" name="cntctfrm_dropdown_label[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['dropdown_label'][ $val ] ) ? esc_html( $this->options['dropdown_label'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'Dropdown', 'contact-form-plugin' ); ?>:</span><br />
+										<input type="text" maxlength="250" name="cntctfrm_esign_label[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['esign_label'][ $val ] ) ? esc_html( $this->options['esign_label'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'E-sign', 'contact-form-plugin' ); ?>:</span><br />
 										<input type="text" maxlength="250" name="cntctfrm_send_copy_label[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['send_copy_label'][ $val ] ) ? esc_html( $this->options['send_copy_label'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'Send me a copy', 'contact-form-plugin' ); ?></span><br />
 										<input type="text" maxlength="250" name="cntctfrm_gdpr_label[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['gdpr_label'][ $val ] ) ? esc_html( $this->options['gdpr_label'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'I consent to having this site collect my personal data.', 'contact-form-plugin' ); ?></span><br />
 										<input type="text" maxlength="250" name="cntctfrm_gdpr_text_button[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['gdpr_text_button'][ $val ] ) ? esc_html( $this->options['gdpr_text_button'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'Learn more', 'contact-form-plugin' ); ?></span><br />
@@ -1467,6 +1497,7 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 										<input type="text" maxlength="250" name="cntctfrm_attachment_size_error[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['attachment_size_error'][ $val ] ) ? esc_html( $this->options['attachment_size_error'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'Error message when file size limit for the Attachment field is exceeded', 'contact-form-plugin' ); ?></span><br />
 										<input type="text" maxlength="250" name="cntctfrm_captcha_error[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['captcha_error'][ $val ] ) ? esc_html( $this->options['captcha_error'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'Error message for the Captcha field', 'contact-form-plugin' ); ?></span><br />
 										<input type="text" maxlength="250" name="cntctfrm_dropdown_error[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['dropdown_error'][ $val ] ) ? esc_html( $this->options['dropdown_error'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'Error message for the Dropdown field', 'contact-form-plugin' ); ?></span><br />
+										<input type="text" maxlength="250" name="cntctfrm_esign_error[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['esign_error'][ $val ] ) ? esc_html( $this->options['esign_error'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'Error message for the E-sign field', 'contact-form-plugin' ); ?></span><br />
 										<input type="text" maxlength="250" name="cntctfrm_form_error[<?php echo esc_attr( $val ); ?>]" value="<?php echo isset( $this->options['form_error'][ $val ] ) ? esc_html( $this->options['form_error'][ $val ] ) : ''; ?>" /> <span class="bws_info"><?php esc_html_e( 'Error message for the whole form', 'contact-form-plugin' ); ?></span><br />
 									</div>
 									<?php if ( ! $contact_form_multi_active ) { ?>
@@ -2215,6 +2246,27 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 															<div class="cntctfrm_input cntctfrm_input_dropdown">
 																<div class="cntctfrm_drag_wrap"></div>
 																<select class="bws_no_bind_notice" name="cntctfrm_contact_dropdown" id="cntctfrm_contact_dropdown"></select>
+															</div>
+														</li>
+														<?php
+														break;
+													case 'cntctfrm_contact_esign':
+														?>
+														<li class="cntctfrm_field_wrap">
+															<div class="cntctfrm_label cntctfrm_label_esign">
+																<label for="cntctfrm_contact_esign">
+																<?php
+																echo esc_html( $this->options['esign_label']['default'] );
+																if ( 1 === absint( $this->options['required_esign'] ) ) {
+																	echo '<span class="required"> ' . esc_attr( $this->options['required_symbol'] ) . '</span>';
+																}
+																?>
+																</label>
+															</div>
+															<div class="cntctfrm_error_text hidden"><?php echo esc_html( $this->options['esign_error']['default'] ); ?></div>
+															<div class="cntctfrm_input cntctfrm_input_esign">
+																<div class="cntctfrm_drag_wrap"></div>
+																<div class="bws_no_bind_notice" id="cntctfrm_contact_esign"><input type="hidden" name="cntctfrm_contact_esign" /></div>
 															</div>
 														</li>
 														<?php

@@ -178,3 +178,18 @@
 .cntctfrm_contact_form .cptch_input {
 	max-width: 100% !important;
 }
+.cntctfrm_field_esign_wrap {
+	position: relative;
+}
+div[id^='cntctfrm_esign_signature'] canvas {
+	background-color: #f0f0f0;
+}
+.cntctfrm_esign_reset {
+	cursor: pointer;
+	position: absolute;
+	top: -30px;
+	left: 300px;
+	width: 25px;
+	height: 25px;
+	font-size: 25px;
+}

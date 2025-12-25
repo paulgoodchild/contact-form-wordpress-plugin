@@ -3,8 +3,8 @@ Contributors: bestwebsoft
 Donate link: https://bestwebsoft.com/donate/
 Tags: wp contact form, contact widget, shortcode contact form, contact button, contact page
 Requires at least: 6.5
-Tested up to: 6.8.2
-Stable tag: 4.3.4
+Tested up to: 6.9
+Stable tag: 4.3.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,7 @@ https://www.youtube.com/watch?v=F_piQa0hmkU
 * Enhanced Contact Fields - Configure name, address and phone fields
 * Advanced File Handling - Allow multiple file attachments
 * Extended Form Fields - Enable additional pre-built form elements
+* E-sign Form Field - Enable sign form element
 * Two-Column Layout Option - Create professional multi-column forms
 * Custom Form Width - Adjust form width to match your design
 * Drag & Drop Field Order - Easily reorganize form fields
@@ -329,6 +330,13 @@ Please make sure that the problem hasn't been discussed yet on our forum (<https
 16. Enable the file multiattachment option to get important files from senders via contact form.
 
 == Changelog ==
+
+= V4.3.6 - 25.12.2025 =
+* Update : All functionality was updated for WordPress 6.9.
+* NEW : E-sign field has been added.
+
+= V4.3.5 - 14.11.2025 =
+* Bugfix : HTML issue in the letters has been fixed.
 
 = V4.3.4 - 02.09.2025 =
 * Update : All functionality was updated for WordPress 6.8.2.
@@ -741,6 +749,13 @@ Please make sure that the problem hasn't been discussed yet on our forum (<https
 * NEW : You can use JavaScript for the form validation with highlighting option
 
 == Upgrade Notice ==
+
+= V4.3.6 =
+* The compatibility with new WordPress version updated.
+* New features added.
+
+= V4.3.5 =
+* Bugs fixed.
 
 = V4.3.4 =
 * The compatibility with new WordPress version updated.

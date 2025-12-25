@@ -6,7 +6,7 @@ Description: Simple contact form plugin any WordPress website must have.
 Author: BestWebSoft
 Text Domain: contact-form-plugin
 Domain Path: /languages
-Version: 4.3.4
+Version: 4.3.6
 Author URI: https://bestwebsoft.com/
 License: GPLv2 or later
  */
@@ -609,7 +609,8 @@ if ( ! function_exists( 'cntctfrm_get_option_defaults' ) ) {
 			'message_label'           => array( 'default' => __( 'Message', 'contact-form-plugin' ) . ':' ),
 			'attachment_label'        => array( 'default' => __( 'Attachment', 'contact-form-plugin' ) . ':' ),
 			'attachment_tooltip'      => array( 'default' => __( 'Supported file types: HTML, TXT, CSS, GIF, PNG, JPEG, JPG, TIFF, BMP, AI, EPS, PS, CSV, RTF, PDF, DOC, DOCX, XLS, XLSX, ZIP, RAR, WAV, MP3, PPT.', 'contact-form-plugin' ) ),
-			'dropdown_label'          => array( 'default' => __( 'Dropdown', 'contact-form-plugin' ) ),
+			'dropdown_label'          => array( 'default' => __( 'Dropdown', 'contact-form-plugin' ) . ':'  ),
+			'esign_label'             => array( 'default' => __( 'E-sign', 'contact-form-plugin' ) . ':'  ),
 			'gdpr_label'              => array( 'default' => __( 'I consent to having this site collect my personal data.', 'contact-form-plugin' ) ),
 			'gdpr_text_button'        => array( 'default' => __( 'Learn more', 'contact-form-plugin' ) ),
 			'submit_label'            => array( 'default' => __( 'Submit', 'contact-form-plugin' ) ),
@@ -626,6 +627,7 @@ if ( ! function_exists( 'cntctfrm_get_option_defaults' ) ) {
 			'attachment_size_error'   => array( 'default' => __( 'This file is too large.', 'contact-form-plugin' ) ),
 			'captcha_error'           => array( 'default' => __( 'Please fill out the CAPTCHA.', 'contact-form-plugin' ) ),
 			'dropdown_error'          => array( 'default' => __( 'This field is required.', 'contact-form-plugin' ) ),
+			'esign_error'             => array( 'default' => __( 'This field is required.', 'contact-form-plugin' ) ),
 			'form_error'              => array( 'default' => __( 'Please make corrections below and try again.', 'contact-form-plugin' ) ),
 			'send_copy_label'         => array( 'default' => __( 'Send me copy.', 'contact-form-plugin' ) ),
 			'action_after_send'       => 1,
@@ -662,6 +664,8 @@ if ( ! function_exists( 'cntctfrm_get_option_defaults' ) ) {
 			'dropdown_value_2'        => '',
 			'display_dropdown'        => 0,
 			'required_dropdown'       => 0,
+			'display_esign'           => 0,
+			'required_esign'          => 0
 		);
 		$option_defaults = apply_filters( 'cntctfrm_get_additional_options_default', $option_defaults );
 
@@ -913,6 +917,7 @@ if ( ! function_exists( 'cntctfrm_get_ordered_fields' ) ) {
 			'cntctfrm_contact_message'    => true,
 			'cntctfrm_contact_attachment' => ( 1 === absint( $cntctfrm_options['attachment'] ) ) ? true : false,
 			'cntctfrm_contact_dropdown'   => ( 1 === absint( $cntctfrm_options['display_dropdown'] ) ) ? true : false,
+			'cntctfrm_contact_esign'      => ( 1 === absint( $cntctfrm_options['display_esign'] ) ) ? true : false,
 			'cntctfrm_contact_send_copy'  => ( 1 === absint( $cntctfrm_options['send_copy'] ) ) ? true : false,
 			'cntctfrm_contact_gdpr'       => ( 1 === absint( $cntctfrm_options['gdpr'] ) ) ? true : false,
 			'cntctfrm_subscribe'          => $display_subscriber,
@@ -1351,6 +1356,22 @@ if ( ! function_exists( 'cntctfrm_display_form' ) ) {
 								$content .='</select></div></div>';
 							}
 							break;
+						case 'cntctfrm_contact_esign':
+							if ( 1 === absint( $cntctfrm_options['display_esign'] ) ) {
+								$content .= '<div class="cntctfrm_field_wrap cntctfrm_field_esign_wrap">';
+								$content .= '<div class="cntctfrm_label cntctfrm_label_esign">
+									<label for="cntctfrm_contact_name' . $form_countid . '">' . $cntctfrm_options['esign_label'][ $lang ] . ( 1 === absint( $cntctfrm_options['required_esign'] ) ? ' <span class="required">' . $cntctfrm_options['required_symbol'] . '</span></label>' : '</label>' );
+								$content .= '</div>';
+								if ( isset( $cntctfrm_error_message['error_esign'] ) && $cntctfrm_form_count === $form_submited ) {
+									$content .= '<div class="cntctfrm_error_text">' . $cntctfrm_error_message['error_esign'] . '</div>';
+								}
+								$content .= '<div class="cntctfrm_input cntctfrm_input_esign"><span id="cntctfrm_esign_reset_' . $cntctfrm_form_count . '" class="cntctfrm_esign_reset dashicons dashicons-update"></span><div id="cntctfrm_esign_signature_' . $cntctfrm_form_count . '"></div>									
+									<input type="hidden" name="cntctfrm_esign_image" id="cntctfrm_esign_image_' . $cntctfrm_form_count . '" value="" />
+									<input type="hidden" name="cntctfrm_esign_start" id="cntctfrm_esign_start_' . $cntctfrm_form_count . '" value="0" />';
+									
+								$content .='</div></div>';
+							}
+							break;
 						default:
 							break;
 					}
@@ -1389,7 +1410,7 @@ if ( ! function_exists( 'cntctfrm_display_form' ) ) {
 							<input type="hidden" value="' . esc_attr( $lang ) . '" name="cntctfrm_language">
 							<input type="hidden" value="' . $cntctfrm_form_count . '" name="cntctfrm_form_submited">
 							<input type="hidden" value="' . $options_name . '" name="cntctfrm_options_name">
-							<input type="submit" value="' . $cntctfrm_options['submit_label'][ $lang ] . '" class="cntctfrm_contact_submit" />
+							<input type="submit" value="' . $cntctfrm_options['submit_label'][ $lang ] . '" class="cntctfrm_contact_submit" id="' . $cntctfrm_form_count . '" />
 						</div>';
 				}
 				$content .= '</div>';
@@ -1523,6 +1544,8 @@ if ( ! function_exists( 'cntctfrm_check_form' ) ) {
 		$subject                = isset( $_POST['cntctfrm_contact_subject'] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_contact_subject'] ) ) : '';
 		$message                = isset( $_POST['cntctfrm_contact_message'] ) ? sanitize_textarea_field( wp_strip_all_tags( wp_unslash( $_POST['cntctfrm_contact_message'] ) ) ) : '';
 		$phone                  = isset( $_POST['cntctfrm_contact_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_contact_phone'] ) ) : '';
+		$esign                  = isset( $_POST['cntctfrm_esign_image'] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_esign_image'] ) ) : '';
+		$esign_start            = isset( $_POST['cntctfrm_esign_start'] ) ? intval( sanitize_text_field( wp_unslash( $_POST['cntctfrm_esign_start'] ) ) ) : 0;
 
 		/* check language and replace with en default if need */
 		if ( ! in_array( $language, $cntctfrm_options['language'] ) ) {
@@ -1574,6 +1597,9 @@ if ( ! function_exists( 'cntctfrm_check_form' ) ) {
 		}
 		if ( 1 === absint( $cntctfrm_options['required_phone_field'] ) && 1 === absint( $cntctfrm_options['display_phone_field'] ) ) {
 			$cntctfrm_error_message['error_phone'] = $cntctfrm_options['phone_error'][ $language ];
+		}
+		if ( 1 === absint( $cntctfrm_options['required_esign'] ) && 1 === absint( $cntctfrm_options['display_esign'] ) ) {
+			$cntctfrm_error_message['error_esign'] = $cntctfrm_options['esign_error'][ $language ];
 		}
 		$cntctfrm_error_message['error_form'] = $cntctfrm_options['form_error'][ $language ];
 		if ( 1 === absint( $cntctfrm_options['attachment'] ) ) {
@@ -1629,6 +1655,10 @@ if ( ! function_exists( 'cntctfrm_check_form' ) ) {
 		}
 		if ( '' !== $message ) {
 			unset( $cntctfrm_error_message['error_message'] );
+		}
+
+		if ( 1 === absint( $cntctfrm_options['display_esign'] ) && 1 === absint( $cntctfrm_options['required_esign'] ) && '' !== $esign && 1 === $esign_start ) {
+			unset( $cntctfrm_error_message['error_esign'] );
 		}
 
 		if ( 1 === $cntctfrm_options['message_limit'] && '' !== $message ) {
@@ -1846,6 +1876,8 @@ if ( ! function_exists( 'cntctfrm_send_mail' ) ) {
 		$message    = isset( $_POST['cntctfrm_contact_message'] ) ? sanitize_textarea_field( wp_strip_all_tags( wp_unslash( $_POST['cntctfrm_contact_message'] ) ) ) : '';
 		$phone      = isset( $_POST['cntctfrm_contact_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_contact_phone'] ) ) : '';
 		$dropdown   = isset( $_POST['cntctfrm_contact_dropdown'] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_contact_dropdown'] ) ) : '';
+		$esign      = isset( $_POST['cntctfrm_esign_image'] ) ? sanitize_text_field( wp_unslash( $_POST['cntctfrm_esign_image'] ) ) : '';
+
 		$user_agent = cntctfrm_clean_input( $_SERVER['HTTP_USER_AGENT'] );
 		if ( isset( $_COOKIE['cntctfrm_send_mail'] ) && true === (bool) $_COOKIE['cntctfrm_send_mail'] ) {
 			return true;
@@ -1890,28 +1922,28 @@ if ( ! function_exists( 'cntctfrm_send_mail' ) ) {
 					if ( 1 === absint( $cntctfrm_options['html_email'] ) ) {
 						$user_info_string .= '<tr><td>' . esc_html__( 'Sent from (ip address)', 'contact-form-plugin' ) . ':</td><td>' . $cntctfrm_remote_addr . ' ( ' . $userdomain . ' )' . '</td></tr>';
 					} else {
-						$user_info_string .= esc_html__( 'Sent from (ip address)', 'contact-form-plugin' ) . ': ' . $cntctfrm_remote_addr . ' ( ' . $userdomain . ' )' . "\n";
+						$user_info_string .= esc_html__( 'Sent from (ip address)', 'contact-form-plugin' ) . ': ' . $cntctfrm_remote_addr . ' ( ' . $userdomain . ' )' . "\r\n";
 					}
 				}
 				if ( 1 === absint( $cntctfrm_options['display_date_time'] ) ) {
 					if ( 1 === absint( $cntctfrm_options['html_email'] ) ) {
 						$user_info_string .= '<tr><td>' . esc_html__( 'Date/Time', 'contact-form-plugin' ) . ':</td><td>' . date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( current_time( 'mysql' ) ) ) . '</td></tr>';
 					} else {
-						$user_info_string .= esc_html__( 'Date/Time', 'contact-form-plugin' ) . ': ' . date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( current_time( 'mysql' ) ) ) . "\n";
+						$user_info_string .= esc_html__( 'Date/Time', 'contact-form-plugin' ) . ': ' . date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( current_time( 'mysql' ) ) ) . "\r\n";
 					}
 				}
 				if ( 1 === absint( $cntctfrm_options['display_coming_from'] ) ) {
 					if ( 1 === absint( $cntctfrm_options['html_email'] ) ) {
 						$user_info_string .= '<tr><td>' . esc_html__( 'Sent from (referer)', 'contact-form-plugin' ) . ':</td><td>' . $form_action_url . '</td></tr>';
 					} else {
-						$user_info_string .= esc_html__( 'Sent from (referer)', 'contact-form-plugin' ) . ': ' . $form_action_url . "\n";
+						$user_info_string .= esc_html__( 'Sent from (referer)', 'contact-form-plugin' ) . ': ' . $form_action_url . "\r\n";
 					}
 				}
 				if ( 1 === absint( $cntctfrm_options['display_user_agent'] ) ) {
 					if ( 1 === absint( $cntctfrm_options['html_email'] ) ) {
 						$user_info_string .= '<tr><td>' . esc_html__( 'Using (user agent)', 'contact-form-plugin' ) . ':</td><td>' . $user_agent . '</td></tr>';
 					} else {
-						$user_info_string .= esc_html__( 'Using (user agent)', 'contact-form-plugin' ) . ': ' . $user_agent . "\n";
+						$user_info_string .= esc_html__( 'Using (user agent)', 'contact-form-plugin' ) . ': ' . $user_agent . "\r\n";
 					}
 				}
 			}
@@ -1976,6 +2008,13 @@ if ( ! function_exists( 'cntctfrm_send_mail' ) ) {
 								$message_text .= '</td><td>' . $dropdown . '</td></tr>';
 							}
 							break;
+						case 'esign':
+							if ( 1 === absint( $cntctfrm_options['display_esign'] ) ) {
+								$message_text .= '<tr><td>';
+								$message_text .= ( 1 === absint( $cntctfrm_options['change_label_in_email'] ) ) ? $cntctfrm_options['esign_label'][ $lang ] : esc_html__( 'E-sign', 'contact-form-plugin' );
+								$message_text .= '</td><td><img src="cid:cntctfrm_sign" /></td></tr>';
+							}
+							break;
 					}
 				}
 				$message_text  = apply_filters( 'cntctfrm_cf_id_message_text', $message_text );
@@ -1983,8 +2022,9 @@ if ( ! function_exists( 'cntctfrm_send_mail' ) ) {
 
 				$message_text_for_user = $message_text . '</table></body></html>';
 				$message_text         .= $user_info_string . '</table></body></html>';
+
 			} else {
-				$message_text = esc_html__( 'Site', 'contact-form-plugin' ) . ': ' . get_bloginfo( 'url' ) . "\n";
+				$message_text = esc_html__( 'Site', 'contact-form-plugin' ) . ': ' . get_bloginfo( 'url' ) . "\r\n";
 
 				foreach ( $message_order_fields as $field ) {
 					$field = str_replace( 'cntctfrm_contact_', '', $field );
@@ -1992,43 +2032,49 @@ if ( ! function_exists( 'cntctfrm_send_mail' ) ) {
 						case 'name':
 							if ( 1 === absint( $cntctfrm_options['display_name_field'] ) ) {
 								$message_text .= ( 1 === absint( $cntctfrm_options['change_label_in_email'] ) ) ? $cntctfrm_options['name_label'][ $lang ] : esc_html__( 'Name', 'contact-form-plugin' );
-								$message_text .= ': ' . $name . "\n";
+								$message_text .= ': ' . $name . "\r\n";
 							}
 							break;
 						case 'address':
 							if ( 1 === absint( $cntctfrm_options['display_address_field'] ) ) {
 								$message_text .= ( 1 === absint( $cntctfrm_options['change_label_in_email'] ) ) ? $cntctfrm_options['address_label'][ $lang ] : esc_html__( 'Address', 'contact-form-plugin' );
-								$message_text .= ': ' . $address . "\n";
+								$message_text .= ': ' . $address . "\r\n";
 							}
 							break;
 						case 'email':
 							$message_text .= ( 1 === absint( $cntctfrm_options['change_label_in_email'] ) ) ? $cntctfrm_options['email_label'][ $lang ] : esc_html__( 'Email', 'contact-form-plugin' );
-							$message_text .= ': ' . $email . "\n";
+							$message_text .= ': ' . $email . "\r\n";
 							break;
 						case 'subject':
 							$message_text .= ( 1 === absint( $cntctfrm_options['change_label_in_email'] ) ) ? $cntctfrm_options['subject_label'][ $lang ] : esc_html__( 'Subject', 'contact-form-plugin' );
-							$message_text .= ': ' . $subject . "\n";
+							$message_text .= ': ' . $subject . "\r\n";
 							break;
 						case 'message':
 							$message_text .= ( 1 === absint( $cntctfrm_options['change_label_in_email'] ) ) ? $cntctfrm_options['message_label'][ $lang ] : esc_html__( 'Message', 'contact-form-plugin' );
-							$message_text .= ': ' . $message . "\n";
+							$message_text .= ': ' . $message . "\r\n";
 							break;
 						case 'phone':
 							if ( 1 === absint( $cntctfrm_options['display_phone_field'] ) ) {
 								$message_text .= ( 1 === absint( $cntctfrm_options['change_label_in_email'] ) ) ? $cntctfrm_options['phone_label'][ $lang ] : esc_html__( 'Phone Number', 'contact-form-plugin' );
-								$message_text .= ': ' . $phone . "\n";
+								$message_text .= ': ' . $phone . "\r\n";
 							}
 							break;
 						case 'dropdown':
 							if ( 1 === absint( $cntctfrm_options['display_dropdown'] ) ) {
 								$message_text .= ( 1 === absint( $cntctfrm_options['change_label_in_email'] ) ) ? $cntctfrm_options['dropdown_label'][ $lang ] : esc_html__( 'Dropdown', 'contact-form-plugin' );
-								$message_text .= ': ' . $dropdown . "\n";
+								$message_text .= ': ' . $dropdown . "\r\n";
+							}
+							break;
+						case 'esign':
+							if ( 1 === absint( $cntctfrm_options['display_esign'] ) ) {
+								$message_text .= ( 1 === absint( $cntctfrm_options['change_label_in_email'] ) ) ? $cntctfrm_options['esign_label'][ $lang ] : esc_html__( 'E-sign', 'contact-form-plugin' );
+								$message_text .= ': (attached)' . "\r\n";
 							}
 							break;
 					}
 				}
 				$message_text  = apply_filters( 'cntctfrm_cf_id_message_text_field', $message_text );
-				$message_text .= "\n";
+				$message_text .= "\r\n";
 
 				$message_text_for_user = $message_text;
 				$message_text         .= $user_info_string;
@@ -2062,9 +2108,9 @@ if ( ! function_exists( 'cntctfrm_send_mail' ) ) {
 			if ( 'wp-mail' === $cntctfrm_options['mail_method'] ) {
 				/* To send HTML mail, the Content-type header must be set */
 				if ( 1 === absint( $cntctfrm_options['html_email'] ) ) {
-					$headers .= 'Content-type: text/html; charset=utf-8' . "\n";
+					$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
 				} else {
-					$headers .= 'Content-type: text/plain; charset=utf-8' . "\n";
+					$headers .= 'Content-type: text/plain; charset=utf-8' . "\r\n";
 				}
 
 				/* Additional headers */
@@ -2096,12 +2142,49 @@ if ( ! function_exists( 'cntctfrm_send_mail' ) ) {
 					}
 				}
 
+				if ( 1 === absint( $cntctfrm_options['display_esign'] ) ) {
+					$attachments_new = array();
+					$upload_dir  = wp_upload_dir();
+					$upload_path = str_replace( '/', DIRECTORY_SEPARATOR, $upload_dir['path'] ) . DIRECTORY_SEPARATOR;
+
+					$cntctfrm_path_of_sign_file = $upload_path . '/sign.png';
+
+					$img     = str_replace( 'data:image/png;base64,', '', $esign );
+					$img     = str_replace( ' ', '+', $img );
+					$decoded = base64_decode( $img );
+
+					file_put_contents( $cntctfrm_path_of_sign_file, $decoded );
+
+					$attachments_new[] = array(
+						'uid'  => 'cntctfrm_sign',
+						'name' => 'sign.png',
+						'file' => $cntctfrm_path_of_sign_file
+					);
+
+					add_action( 'phpmailer_init', function( &$phpmailer ) use( $attachments_new ) {
+						$phpmailer->SMTPKeepAlive=true;
+						foreach ( $attachments_new as $attachment ) {
+							$phpmailer->AddEmbeddedImage( $attachment['file'], $attachment['uid'], $attachment['name'] );
+						}
+					});
+				}
+
 				if ( isset( $_POST['cntctfrm_contact_send_copy'] ) && 1 === absint( $_POST['cntctfrm_contact_send_copy'] ) ) {
 					wp_mail( $email, $subject, $message_text_for_user, $headers, $attachments );
 				}
 
 				/* Mail it */
 				$mail_result = wp_mail( $to, $subject, $message_text, $headers, $attachments );
+				
+				if ( 1 === absint( $cntctfrm_options['display_esign'] ) ) {
+					foreach ( $attachments_new as $attachment ) {
+						if ( file_exists( $attachment['name'] ) ) {
+							unlink( $attachment['name'] );
+						}
+					}
+					$attachments_new = NULL;
+				}
+
 				/* Delete attachment */
 				if ( 1 === absint( $cntctfrm_options['attachment'] ) && ! empty( $_FILES['cntctfrm_contact_attachment']['tmp_name'] ) && array( '' ) !== $_FILES['cntctfrm_contact_attachment']['tmp_name']
 					&& $cntctfrm_path_of_uploaded_file_changed !== $cntctfrm_path_of_uploaded_file ) {
@@ -2113,14 +2196,15 @@ if ( ! function_exists( 'cntctfrm_send_mail' ) ) {
 				return $mail_result;
 			} else {
 				/* Set headers */
-				$headers .= 'MIME-Version: 1.0' . "\n";
+				$headers .= 'MIME-Version: 1.0' . "\r\n";
 
-				if ( 1 === absint( $cntctfrm_options['attachment'] ) && ! empty( $_FILES['cntctfrm_contact_attachment']['tmp_name'] ) && array( '' ) !== $_FILES['cntctfrm_contact_attachment']['tmp_name'] ) {
+				if ( ( 1 === absint( $cntctfrm_options['attachment'] ) && ! empty( $_FILES['cntctfrm_contact_attachment']['tmp_name'] ) && array( '' ) !== $_FILES['cntctfrm_contact_attachment']['tmp_name'] ) || 1 === absint( $cntctfrm_options['display_esign'] ) ) {
+					error_log( print_r( 'display_esign', true ) . PHP_EOL, 3, dirname( __FILE__ ) . '/error.log' );
 					$message_block          = $message_text;
 					$message_block_for_user = $message_text_for_user;
 
 					/* Additional headers */
-					$headers .= 'From: ' . $from_field_name . ' <' . $from_email . '>' . "\n";
+					$headers .= 'From: ' . $from_field_name . ' <' . $from_email . '>' . "\r\n";
 
 					$bound_text = 'jimmyP123';
 
@@ -2130,57 +2214,80 @@ if ( ! function_exists( 'cntctfrm_send_mail' ) ) {
 
 					$headers .= "Content-Type: multipart/mixed; boundary=\"$bound_text\"";
 
-					$message_text          = esc_html__( 'If you can see this MIME, it means that the MIME type is not supported by your email client!', 'contact-form-plugin' ) . "\n";
+					$message_text          = esc_html__( 'If you can see this MIME, it means that the MIME type is not supported by your email client!', 'contact-form-plugin' ) . "\r\n";
 					$message_text_for_user = $message_text;
 
 					if ( 1 === absint( $cntctfrm_options['html_email'] ) ) {
-						$message_text          .= $bound . "\nContent-Type: text/html; charset=\"utf-8\"\nContent-Transfer-Encoding: 7bit\n\n" . $message_block . "\n\n";
-						$message_text_for_user .= $bound . "\nContent-Type: text/html; charset=\"utf-8\"\nContent-Transfer-Encoding: 7bit\n\n" . $message_block_for_user . "\n\n";
+						$message_text          .= $bound . "\r\nContent-Type: text/html; charset=\"utf-8\"\r\nContent-Transfer-Encoding: 7bit\r\n\r\n" . $message_block . "\r\n\r\n";
+						$message_text_for_user .= $bound . "\r\nContent-Type: text/html; charset=\"utf-8\"\r\nContent-Transfer-Encoding: 7bit\r\n\r\n" . $message_block_for_user . "\r\n\r\n";
 					} else {
-						$message_text          .= $bound . "\nContent-Type: text/plain; charset=\"utf-8\"\nContent-Transfer-Encoding: 7bit\n\n" . $message_block . "\n\n";
-						$message_text_for_user .= $bound . "\nContent-Type: text/plain; charset=\"utf-8\"\nContent-Transfer-Encoding: 7bit\n\n" . $message_block_for_user . "\n\n";
+						$message_text          .= $bound . "\r\nContent-Type: text/plain; charset=\"utf-8\"\r\nContent-Transfer-Encoding: 7bit\r\n\r\n" . $message_block . "\r\n\r\n";
+						$message_text_for_user .= $bound . "\r\nContent-Type: text/plain; charset=\"utf-8\"\r\nContent-Transfer-Encoding: 7bit\r\n\r\n" . $message_block_for_user . "\r\n\r\n";
 					}
 
 					/* Number of uploaded files */
-					$num_files = count( (array) $_FILES['cntctfrm_contact_attachment']['tmp_name'] );
-					for ( $i = 0; $i < $num_files; $i++ ) {
-						global $cntctfrm_path_of_uploaded_file, $cntctfrm_path_of_uploaded_files;
+					if ( 1 === absint( $cntctfrm_options['display_esign'] ) ) {
+						$file_name   = 'sign.png';
+						$file        = str_replace( 'data:image/png;base64,', '', $esign );
+						//$file     = str_replace( ' ', '+', $file );
+						//$decoded = base64_decode( $file );
 
-						if ( $cntctfrm_options['active_multi_attachment'] ) {
-							$file_name   = sanitize_file_name( $_FILES['cntctfrm_contact_attachment']['name'][ $i ] );
-							$file        = file_get_contents( $cntctfrm_path_of_uploaded_files[ $i ] );
-							$file_size   = filesize( $cntctfrm_path_of_uploaded_files[ $i ] );
-							$description = basename( $cntctfrm_path_of_uploaded_files[ $i ] );
-						} else {
-							$file_name   = sanitize_file_name( $_FILES['cntctfrm_contact_attachment']['name'] );
-							$file        = file_get_contents( $cntctfrm_path_of_uploaded_file );
-							$file_size   = filesize( $cntctfrm_path_of_uploaded_file );
-							$description = basename( $cntctfrm_path_of_uploaded_file );
+						$message_text          .= $bound . "\r\n" .
+							"Content-Type: image/png;\r\n" .
+							"Content-Disposition: inline; filename='sign.png'\r\n" .
+							//"Content-Location: sign.png\r\n" .
+							"Content-ID: <cntctfrm_sign>;\r\n" .
+							"Content-Transfer-Encoding: base64\r\n\r\n" . $file . "\r\n\r\n";
+						$message_text_for_user .= $bound . "\r\n" .
+							"Content-Type: image/png;\r\n" .
+							"Content-Disposition: inline; filename='sign.png'\r\n" .
+							//"Content-Location: sign.png\r\n" .
+							"Content-ID: <cntctfrm_sign>;\r\n" .
+							"Content-Transfer-Encoding: base64\r\n\r\n" . $file . "\r\n\r\n";
+					}
+					if ( 1 === absint( $cntctfrm_options['attachment'] ) && ! empty( $_FILES['cntctfrm_contact_attachment']['tmp_name'] ) ) { 
+						$num_files = count( (array) $_FILES['cntctfrm_contact_attachment']['tmp_name'] );
+						for ( $i = 0; $i < $num_files; $i++ ) {
+							global $cntctfrm_path_of_uploaded_file, $cntctfrm_path_of_uploaded_files;
+
+							if ( $cntctfrm_options['active_multi_attachment'] ) {
+								$file_name   = sanitize_file_name( $_FILES['cntctfrm_contact_attachment']['name'][ $i ] );
+								$file        = file_get_contents( $cntctfrm_path_of_uploaded_files[ $i ] );
+								$file_size   = filesize( $cntctfrm_path_of_uploaded_files[ $i ] );
+								$description = basename( $cntctfrm_path_of_uploaded_files[ $i ] );
+							} else {
+								$file_name   = sanitize_file_name( $_FILES['cntctfrm_contact_attachment']['name'] );
+								$file        = file_get_contents( $cntctfrm_path_of_uploaded_file );
+								$file_size   = filesize( $cntctfrm_path_of_uploaded_file );
+								$description = basename( $cntctfrm_path_of_uploaded_file );
+							}
+							$message_text          .= $bound . "\r\n" .
+								'Content-Type: application/octet-stream; name="' . $file_name . "\"\r\n" .
+								'Content-Description: ' . $description . "\r\n" .
+								"Content-Disposition: attachment;\r\n" . ' filename="' . $file_name . '"; size=' . $file_size . ";\r\n" .
+								"Content-Transfer-Encoding: base64\r\n\r\n" . chunk_split( base64_encode( $file ) ) . "\r\n\r\n";
+							$message_text_for_user .= $bound . "\r\n" .
+								'Content-Type: application/octet-stream; name="' . $file_name . "\"\r\n" .
+								'Content-Description: ' . $description . "\r\n" .
+								"Content-Disposition: attachment;\r\n" . ' filename="' . $file_name . '"; size=' . $file_size . ";\r\n" .
+								"Content-Transfer-Encoding: base64\r\n\r\n" . chunk_split( base64_encode( $file ) ) . "\r\n\r\n";
 						}
-						$message_text          .= $bound . "\n" .
-							'Content-Type: application/octet-stream; name="' . $file_name . "\"\n" .
-							'Content-Description: ' . $description . "\n" .
-							"Content-Disposition: attachment;\n" . ' filename="' . $file_name . '"; size=' . $file_size . ";\n" .
-							"Content-Transfer-Encoding: base64\n\n" . chunk_split( base64_encode( $file ) ) . "\n\n";
-						$message_text_for_user .= $bound . "\n" .
-							'Content-Type: application/octet-stream; name="' . $file_name . "\"\n" .
-							'Content-Description: ' . $description . "\n" .
-							"Content-Disposition: attachment;\n" . ' filename="' . $file_name . '"; size=' . $file_size . ";\n" .
-							"Content-Transfer-Encoding: base64\n\n" . chunk_split( base64_encode( $file ) ) . "\n\n";
 					}
 					$message_text          .= $bound_last;
 					$message_text_for_user .= $bound_last;
 
+					error_log( print_r( $message_text, true ) . PHP_EOL, 3, dirname( __FILE__ ) . '/error.log' );
+
 				} else {
 					/* To send HTML mail, header must be set */
 					if ( 1 === absint( $cntctfrm_options['html_email'] ) ) {
-						$headers .= 'Content-type: text/html; charset=utf-8' . "\n";
+						$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
 					} else {
-						$headers .= 'Content-type: text/plain; charset=utf-8' . "\n";
+						$headers .= 'Content-type: text/plain; charset=utf-8' . "\r\n";
 					}
 
 					/* Additional headers */
-					$headers .= 'From: ' . $from_field_name . ' <' . $from_email . '>' . "\n";
+					$headers .= 'From: ' . $from_field_name . ' <' . $from_email . '>' . "\r\n";
 				}
 				if ( isset( $_POST['cntctfrm_contact_send_copy'] ) && 1 === absint( $_POST['cntctfrm_contact_send_copy'] ) ) {
 					@mail( $email, $subject, $message_text_for_user, $headers );
@@ -2353,8 +2460,21 @@ if ( ! function_exists( 'cntctfrm_wp_enqueue_style' ) ) {
 	 * Add plugin styles
 	 */
 	function cntctfrm_wp_enqueue_style() {
-		global $cntctfrm_plugin_info;
+		global $cntctfrm_plugin_info, $cntctfrm_options, $cntctfrm_form_count, $cntctfrm_stile_options;
+		if ( empty( $cntctfrm_options ) ) {
+			cntctfrm_settings();
+		}
+
 		wp_enqueue_style( 'cntctfrm_form_style', plugins_url( 'css/form_style.css', __FILE__ ), false, $cntctfrm_plugin_info['Version'] );
+		if ( isset( $cntctfrm_options['display_esign'] ) && 1 === $cntctfrm_options['display_esign'] ) {
+			wp_enqueue_script( 'cntctfrm_lemonade', plugins_url( 'js/lemonade.min.js', __FILE__ ), array(), '5.0.0', true );
+			wp_enqueue_script( 'cntctfrm_lemonade_signature', plugins_url( 'js/signature.min.js', __FILE__ ), array(), '5.0.0', true );
+			wp_enqueue_script( 'cntctfrm_signature', plugins_url( 'js/cntctfrm_signature.js', __FILE__ ), array(), '2.0', true );
+			$script_vars = array(
+				'cntctfrm_sign_text' => esc_html__( 'Please sign in the box above', 'contact-form-plugin' )
+			);
+			wp_localize_script( 'cntctfrm_signature', 'cntctfrm_vars', $script_vars );
+		}
 	}
 }
 

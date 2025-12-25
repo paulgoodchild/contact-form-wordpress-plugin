@@ -63,6 +63,7 @@
 <li>Enhanced Contact Fields &#8211; Configure name, address and phone fields</li>
 <li>Advanced File Handling &#8211; Allow multiple file attachments</li>
 <li>Extended Form Fields &#8211; Enable additional pre-built form elements</li>
+<li>E-sign Form Field &#8211; Enable sign form element</li>
 <li>Two-Column Layout Option &#8211; Create professional multi-column forms</li>
 <li>Custom Form Width &#8211; Adjust form width to match your design</li>
 <li>Drag &amp; Drop Field Order &#8211; Easily reorganize form fields</li>
