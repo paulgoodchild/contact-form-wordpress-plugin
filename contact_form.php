@@ -2952,6 +2952,9 @@ if ( ! function_exists( 'cntctfrm_delete_options' ) ) {
 	}
 }
 
+require_once dirname( __FILE__ ) . '/includes/integrations/class-cntctfrm-shield-silent-captcha.php';
+cntctfrm_get_shield_silent_captcha();
+
 register_activation_hook( __FILE__, 'cntctfrm_activation' );
 
 add_action( 'admin_menu', 'cntctfrm_admin_menu' );

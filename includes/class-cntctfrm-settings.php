@@ -468,6 +468,7 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 					} else {
 						update_option( 'cntctfrm_options', $this->options );
 					}
+					cntctfrm_get_shield_silent_captcha()->commit_settings_after_success( $contact_form_multi_active );
 					$message = esc_html__( 'Settings saved.', 'contact-form-plugin' );
 				} else {
 					$error .= ' ' . esc_html__( 'Settings are not saved.', 'contact-form-plugin' );
@@ -646,7 +647,9 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 			if ( empty( $cntctfrm_related_plugins ) ) {
 				cntctfrm_related_plugins();
 			}
-			$all_plugins = get_plugins();
+			$all_plugins           = get_plugins();
+			$shield_silent_captcha = cntctfrm_get_shield_silent_captcha();
+			$shield_settings       = $shield_silent_captcha->get_settings_ui_state( $this->options, $contact_form_multi_active );
 			?>
 			<h3 class="bws_tab_label"><?php esc_html_e( 'Additional Settings', 'contact-form-plugin' ); ?></h3>
 			<?php $this->help_phrase(); ?>
@@ -1324,6 +1327,29 @@ if ( ! class_exists( 'Cntctfrm_Settings_Tabs' ) ) {
 								<label><input disabled="disabled" type="checkbox" name="cntctfrm_display_google_captcha" value="1" /> reCaptcha by BestWebSoft</label> <span class="bws_info">
 									<?php printf( '<a href="https://bestwebsoft.com/products/wordpress/plugins/google-captcha/?k=7d74e61dd1cea23d0e9bf2fa88b5b117&amp;pn=77&amp;v=%s&amp;wp_v=%s" target="_blank">%s reCaptcha</a>', esc_attr( $cntctfrm_plugin_info['Version'] ), esc_attr( $wp_version ), esc_html__( 'Download', 'contact-form-plugin' ) ); ?>
 									</span>
+							<?php } ?>
+						</div>
+						<div style="clear: both; white-space: nowrap;">
+							<?php if ( $contact_form_multi_active ) { ?>
+								<label>
+									<?php if ( ! $shield_settings['available'] ) { ?>
+										<input type="hidden" name="<?php echo esc_attr( $shield_settings['global']['name'] ); ?>" value="<?php echo esc_attr( $shield_settings['global']['hidden_value'] ); ?>" />
+									<?php } ?>
+									<input <?php disabled( ! $shield_settings['available'] ); ?> type="checkbox" <?php echo $shield_settings['available'] ? 'name="' . esc_attr( $shield_settings['global']['name'] ) . '"' : ''; ?> value="1" <?php checked( $shield_settings['global']['enabled'] ); ?> />
+									<?php echo esc_html( $shield_settings['global']['label'] ); ?>
+								</label>
+								<span class="bws_info"><?php echo esc_html( $shield_settings['global']['description'] ); ?></span>
+								<br />
+							<?php } ?>
+							<label>
+								<?php if ( ! $shield_settings['available'] ) { ?>
+									<input type="hidden" name="<?php echo esc_attr( $shield_settings['current']['name'] ); ?>" value="<?php echo esc_attr( $shield_settings['current']['hidden_value'] ); ?>" />
+								<?php } ?>
+								<input <?php disabled( ! $shield_settings['available'] ); ?> type="checkbox" <?php echo $shield_settings['available'] ? 'name="' . esc_attr( $shield_settings['current']['name'] ) . '"' : ''; ?> value="1" <?php checked( $shield_settings['current']['enabled'] ); ?> />
+								<?php echo esc_html( $shield_settings['current']['label'] ); ?>
+							</label>
+							<?php if ( ! empty( $shield_settings['notice'] ) ) { ?>
+								<div class="bws_info"><?php echo wp_kses_post( $shield_settings['notice'] ); ?></div>
 							<?php } ?>
 						</div>
 						<!-- pls -->
