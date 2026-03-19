@@ -55,16 +55,7 @@ if ( ! class_exists( 'Cntctfrm_Shield_Silent_Captcha' ) ) {
 		 */
 		private $pending_multi_global_value = null;
 
-		/**
-		 * Whether the current runtime can support Shield.
-		 *
-		 * @var bool
-		 */
-		private $runtime_supported = false;
-
 		public function __construct() {
-			$this->runtime_supported = version_compare( PHP_VERSION, '7.4.0', '>=' );
-
 			add_filter( 'cntctfrm_get_additional_options_default', array( $this, 'add_option_defaults' ) );
 			add_filter( 'cntctfrm_save_additional_options', array( $this, 'capture_settings' ) );
 			add_filter( 'cntctfrm_check_fields', array( $this, 'filter_submission_errors' ) );
@@ -135,10 +126,6 @@ if ( ! class_exists( 'Cntctfrm_Shield_Silent_Captcha' ) ) {
 				return $error_messages;
 			}
 
-			if ( ! $this->runtime_supported ) {
-				return $error_messages;
-			}
-
 			if ( $this->has_prior_blocking_errors( $error_messages ) ) {
 				return $error_messages;
 			}
@@ -191,13 +178,9 @@ if ( ! class_exists( 'Cntctfrm_Shield_Silent_Captcha' ) ) {
 				);
 			}
 
-			if ( ! $this->runtime_supported ) {
-				$state['notice'] = $this->get_runtime_unsupported_notice_html();
-			} else {
-				$state['available'] = $this->is_shield_available();
-			}
+			$state['available'] = $this->is_shield_available();
 
-			if ( $this->runtime_supported && ! $state['available'] ) {
+			if ( ! $state['available'] ) {
 				$state['notice'] = $this->get_unavailable_notice_html();
 			} elseif ( $this->is_shield_threshold_zero() ) {
 				$state['notice'] = $this->get_threshold_notice_html();
@@ -212,7 +195,7 @@ if ( ! class_exists( 'Cntctfrm_Shield_Silent_Captcha' ) ) {
 		 * @return bool
 		 */
 		private function is_shield_available() {
-			if ( ! $this->runtime_supported ) {
+			if ( ! did_action( 'plugins_loaded' ) ) {
 				return false;
 			}
 
@@ -237,7 +220,7 @@ if ( ! class_exists( 'Cntctfrm_Shield_Silent_Captcha' ) ) {
 		 * @return bool
 		 */
 		private function is_shield_threshold_zero() {
-			if ( ! $this->runtime_supported ) {
+			if ( ! did_action( 'plugins_loaded' ) ) {
 				return false;
 			}
 
@@ -251,40 +234,16 @@ if ( ! class_exists( 'Cntctfrm_Shield_Silent_Captcha' ) ) {
 			}
 
 			foreach ( $this->get_threshold_callables() as $callable ) {
-				if ( ! is_callable( $callable ) ) {
-					continue;
+				if ( is_callable( $callable ) ) {
+					try {
+						$this->shield_threshold_zero = 0 === call_user_func( $callable );
+						break;
+					} catch ( \Exception $e ) {
+					}
 				}
-
-				try {
-					$threshold = call_user_func( $callable );
-				} catch ( \Exception $e ) {
-					continue;
-				}
-
-				if ( ! is_numeric( $threshold ) ) {
-					continue;
-				}
-
-				$this->shield_threshold_zero = 0.0 === (float) $threshold;
-				break;
 			}
 
 			return $this->shield_threshold_zero;
-		}
-
-		/**
-		 * Get runtime-unsupported notice HTML.
-		 *
-		 * @return string
-		 */
-		private function get_runtime_unsupported_notice_html() {
-			return $this->get_notice_with_help_link(
-				sprintf(
-					/* translators: %s: minimum PHP version for Shield. */
-					__( 'Shield silentCAPTCHA requires PHP %s or higher.', 'contact-form-plugin' ),
-					'7.4'
-				)
-			);
 		}
 
 		/**
@@ -295,7 +254,7 @@ if ( ! class_exists( 'Cntctfrm_Shield_Silent_Captcha' ) ) {
 		private function get_unavailable_notice_html() {
 			return $this->get_notice_with_help_link(
 				__(
-					'Shield Security bot detection is not currently detected, so this setting has no effect right now. Install and activate Shield Security to enable silentCAPTCHA bot checks.',
+					'Shield Security is not installed or not active, so this setting has no effect right now. Install and activate Shield Security to enable silentCAPTCHA bot checks.',
 					'contact-form-plugin'
 				)
 			);
